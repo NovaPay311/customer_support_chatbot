@@ -1,6 +1,11 @@
+import os
+import logging
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from .chatbot import CHATBOT
-import logging
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging for the Flask app
 logging.basicConfig(level=logging.INFO)
@@ -45,6 +50,7 @@ def health_check():
     })
 
 if __name__ == '__main__':
+    # Get port from environment variables, default to 5000
+    port = int(os.getenv('FLASK_PORT', 5000))
     # Running on 0.0.0.0 to be accessible from outside the container/environment
-    # Port 5000 is a common default for Flask apps
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=port)
