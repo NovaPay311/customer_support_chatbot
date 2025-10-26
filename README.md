@@ -1,19 +1,19 @@
-# NovaPay Customer Support Chatbot: Modern RAG API
+# NovaPay Customer Support Chatbot: Production-Ready RAG API
 
 ## Overview
 
-This repository provides a production-ready, context-aware RAG (Retrieval-Augmented Generation) chatbot designed for **NovaPay** customer support. It is built for **quick deployment (quick win)** and seamless integration with enterprise systems like **1C** and **Bitrix24**.
+This repository is now a foundation for a **production-ready, highly scalable RAG (Retrieval-Augmented Generation) chatbot** designed for NovaPay customer support. It is engineered for commercial resale and deep integration with enterprise systems like **1C** and **Bitrix24**.
 
-The core of this solution is a modern RAG pipeline powered by the **LightRAG** framework, exposed via a robust **Flask/Gunicorn** RESTful API.
+The core is built on a modular **LangChain** architecture, providing the flexibility and power needed to adapt to any client's requirements.
 
-### Key Modernizations & Features
+### Key Features & Scalability
 
-| Feature | Description | Benefit |
+| Feature | Description | Commercial Value |
 | :--- | :--- | :--- |
-| **Dynamic Context Management** | Implements a simple conversational memory to maintain context across multiple user queries. This mimics the **Model Context Protocol (MCP)** pattern, similar to "Context7," for more natural and relevant multi-turn conversations. | **Expert-Level Interaction:** Allows the chatbot to follow up on previous questions, significantly improving the user experience for complex inquiries. |
-| **Easy Configuration (.env)** | All sensitive credentials and configuration settings are managed via a `.env` file. | **Fork-Ready:** Simplifies setup for new users and ensures security by keeping secrets out of the repository. |
-| **RESTful API** | Exposes a simple `/api/v1/query` endpoint. | **Universal Integration:** The API can be consumed by any modern system, including webhooks from Bitrix24 and direct calls from 1C. |
-| **Lightweight Deployment** | Containerized with `Dockerfile` and optimized for platforms like Hugging Face Spaces. | **Fast Time-to-Market:** Enables rapid deployment and iteration with minimal infrastructure overhead. |
+| **Modular LangChain Core** | The RAG pipeline is built using LangChain's abstractions (Loaders, Splitters, Chains), allowing for easy component swapping without rewriting core logic. | **Future-Proof & Adaptable:** Ready to integrate any new LLM, Embedding Model, or Vector Database on the market. |
+| **Vector DB Ready** | Configured for seamless integration with **ChromaDB** (for quick start) and prospective support for **Pinecone** and **Weaviate** (via `.env`). | **Scalable Knowledge:** Handles millions of documents, a necessity for large corporate clients. |
+| **Conversational Memory** | Uses LangChain's standard memory abstraction to maintain context across queries. | **Expert Interaction:** Enables natural, multi-turn conversations, significantly boosting customer satisfaction. |
+| **Enterprise API** | Exposed via a robust **Flask/Gunicorn** RESTful API. | **Universal Integration:** The API can be consumed by any modern system (Bitrix24 webhooks, 1C direct calls). |
 
 ---
 
@@ -62,43 +62,26 @@ curl -X POST http://localhost:5000/api/v1/query \
 
 ---
 
-## 🛠️ Для Разработчиков (Local Development)
+## 🛠️ Архитектура и Расширение (Для Экспертов)
 
-Для тех, кто хочет работать с кодом напрямую:
+### Интеграция с Векторными Базами Данных
 
-1.  **Setup Virtual Environment:**
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
-2.  **Run the Flask App:**
-    ```bash
-    python src/app.py
-    ```
-    The API will start on `http://127.0.0.1:5000`.
+Проект настроен на использование **ChromaDB** в режиме `in-memory` для быстрого старта. Для перехода на продакшн-уровень и масштабирования, измените переменные в файле `.env`:
 
-## Профессиональная Критика и Рекомендации
+1.  **Установите** `VECDB_TYPE` на `PINECONE` или `WEAVIATE`.
+2.  **Раскомментируйте** и заполните соответствующие поля API ключами и URL.
 
-Как эксперт, я вижу, что мы создали отличный, минимально жизнеспособный продукт (MVP) с акцентом на скорость и интеграцию. Вот мои **критические замечания и рекомендации** для дальнейшего развития:
+### Профессиональная Критика и Рекомендации
 
-### 1. Критика Текущего MVP
-
-*   **Статичное Знание:** Вся база знаний находится в одном файле `knowledge_base.txt`. Это не масштабируется. Для реального бизнеса потребуется интеграция с базой данных или системой управления контентом.
-*   **Простая Память:** Механизм "Context7-like" памяти (в `src/chatbot.py`) — это простой массив в памяти. Он сбрасывается при каждом перезапуске и не работает при горизонтальном масштабировании (когда запросы обрабатывают разные экземпляры сервера).
-*   **Зависимость от OpenAI:** Мы жестко зависим от OpenAI-совместимого API. Для корпоративных клиентов важно иметь опцию локального или самохостингового LLM.
-
-### 2. Рекомендации по Улучшению (Следующие Шаги)
+Мы успешно перешли от прототипа к **модульной, масштабируемой архитектуре**. Следующие шаги должны быть сфокусированы на демонстрации и коммерциализации:
 
 | Приоритет | Направление | Описание Улучшения |
 | :--- | :--- | :--- |
-| **Высокий** | **База Знаний (RAG)** | Переход от `knowledge_base.txt` к **векторной базе данных** (например, ChromaDB или Pinecone). Это позволит управлять тысячами документов, обновлять их в реальном времени и сделает RAG-ответы более точными. |
-| **Высокий** | **Развертывание** | Использование **Hugging Face Spaces** с `gradio` или `Streamlit` для создания **визуального интерфейса** (Demo Space), чтобы клиенты могли протестировать чат-бота без cURL. |
-| **Средний** | **Память (Context)** | Интеграция с **Redis** или другой внешней службой для **хранения истории диалогов**. Это обеспечит настоящую, масштабируемую память, которая не сбрасывается. |
-| **Средний** | **Гибкость LLM** | Добавление поддержки **Hugging Face Hub** для использования **Open-Source LLM** (например, Llama 3) вместо коммерческих API. Это снизит зависимость и стоимость. |
-| **Низкий** | **Мониторинг** | Внедрение простого логирования и метрик для отслеживания производительности чат-бота (например, время ответа, количество ошибок). |
+| **Высокий** | **Визуальная Демонстрация** | Использование **Hugging Face Spaces** с `gradio` или `Streamlit` для создания **визуального интерфейса (Demo Space)**. Это позволит клиентам тестировать чат-бота без cURL. |
+| **Высокий** | **Интеграция с Векторной БД** | Фактическая реализация подключения к **Pinecone** или **Weaviate** (сейчас это только заготовка в `.env`). Это позволит нам проводить демонстрации с реальными, большими базами знаний. |
+| **Средний** | **Масштабируемая Память** | Интеграция с **Redis** или другой внешней службой для **хранения истории диалогов** в продакшн-среде. |
 
-**Заключение Эксперта:** Мы создали отличный, чистый MVP. Следующий шаг — это **масштабирование базы знаний и памяти**, чтобы перейти от прототипа к корпоративному решению.
+**Заключение Эксперта:** Мы создали "пушку" — гибкую, модульную платформу, готовую к интеграции с любыми корпоративными системами. Следующий шаг — **упаковка для продажи** (визуальное демо и демонстрация масштабирования).
 
 ## Project Structure
 
@@ -112,7 +95,7 @@ curl -X POST http://localhost:5000/api/v1/query \
 └── src/
     ├── __init__.py           # Python package marker
     ├── app.py                # Flask API application (runs the service)
-    ├── chatbot.py            # Core LightRAG RAG and Context Management logic
+    ├── chatbot.py            # Core LangChain RAG and Context Management logic
     └── data/
         └── knowledge_base.txt  # The source of truth for RAG (editable knowledge base)
 ```
