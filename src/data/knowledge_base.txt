@@ -1,0 +1,25 @@
+# NovaPay Customer Support Knowledge Base
+
+## General Information
+- **Company Name:** NovaPay
+- **Primary Service:** Digital payment solutions and financial services.
+- **Support Hours:** Monday to Friday, 9:00 AM to 6:00 PM (GMT+3).
+- **Email Support:** support@novapay.com
+
+## Account and Registration
+- **How to register:** You can register for a NovaPay account on our official website by clicking the "Sign Up" button and following the on-screen instructions. You will need a valid email address and phone number.
+- **Password Reset:** To reset your password, click the "Forgot Password" link on the login page. A password reset link will be sent to your registered email address.
+- **Account Verification:** Account verification is mandatory for all users to comply with financial regulations. Please upload a clear photo of your government-issued ID and a proof of address document (e.g., utility bill).
+
+## Payments and Transactions
+- **Transaction Fees:** Standard transaction fees are 0.5% for domestic transfers and 1.5% for international transfers. Fees may vary for business accounts.
+- **Transfer Limits:** The maximum daily transfer limit for unverified accounts is $1,000. Verified accounts have a limit of $10,000 per day.
+- **Transaction Status:** You can check the status of any transaction in the "Transaction History" section of your account dashboard. Processing times are usually instant, but international transfers may take up to 3 business days.
+
+## Integration with 1C and Bitrix
+- **1C Integration:** We provide a REST API endpoint for 1C systems to query customer data and transaction history. Documentation is available upon request to enterprise clients.
+- **Bitrix24 Integration:** Our platform supports webhooks and the Bitrix24 Chatbot API for seamless integration with Bitrix24 Open Lines. This allows for automated customer support directly within the Bitrix environment.
+
+## Technical Support
+- **API Documentation:** The full API documentation for developers is hosted on our dedicated developer portal: dev.novapay.com.
+- **Outage Check:** If you are experiencing issues, please check our status page at status.novapay.com before contacting support.
