@@ -1,4 +1,4 @@
-# NovaPay Customer Support Chatbot: Production-Ready RAG API
+# NovaPay Customer Support Chatbot: Production-Ready RAG Platform
 
 ## Overview
 
@@ -10,16 +10,16 @@ The core is built on a modular **LangChain** architecture, providing the flexibi
 
 | Feature | Description | Commercial Value |
 | :--- | :--- | :--- |
-| **Modular LangChain Core** | The RAG pipeline is built using LangChain's abstractions (Loaders, Splitters, Chains), allowing for easy component swapping without rewriting core logic. | **Future-Proof & Adaptable:** Ready to integrate any new LLM, Embedding Model, or Vector Database on the market. |
+| **Multi-LLM Support** | Dynamically switches between **OpenAI, Google (Gemini), and Anthropic (Claude)** models based on configuration. | **Flexibility & Cost Optimization:** Allows clients to choose the best model for their budget and performance needs. |
+| **Modular LangChain Core** | The RAG pipeline is built using LangChain's abstractions, allowing for easy component swapping. | **Future-Proof & Adaptable:** Ready to integrate any new LLM, Embedding Model, or Vector Database on the market. |
 | **Vector DB Ready** | Configured for seamless integration with **ChromaDB** (for quick start) and prospective support for **Pinecone** and **Weaviate** (via `.env`). | **Scalable Knowledge:** Handles millions of documents, a necessity for large corporate clients. |
 | **Conversational Memory** | Uses LangChain's standard memory abstraction to maintain context across queries. | **Expert Interaction:** Enables natural, multi-turn conversations, significantly boosting customer satisfaction. |
-| **Enterprise API** | Exposed via a robust **Flask/Gunicorn** RESTful API. | **Universal Integration:** The API can be consumed by any modern system (Bitrix24 webhooks, 1C direct calls). |
 
 ---
 
-## 🚀 Quick Start: Запуск в 3 Шага (Для Новичков)
+## 🚀 Quick Start: Запуск Визуального Демо (Demo MVP)
 
-Этот проект можно запустить с помощью **Docker** всего за несколько команд. Вам понадобится только установленный **Docker** и **API ключ** для LLM (например, OpenAI).
+Мы создали **визуальный интерфейс на Streamlit**, чтобы вы могли запустить и проверить работу чат-бота всего за несколько команд.
 
 ### Шаг 1: Клонирование и Настройка
 
@@ -32,37 +32,38 @@ The core is built on a modular **LangChain** architecture, providing the flexibi
     ```bash
     cp .env.example .env
     ```
-3.  **Вставьте свой API ключ:** Откройте файл `.env` и замените `YOUR_LLM_API_KEY_HERE` на ваш реальный ключ.
+3.  **Вставьте свой API ключ:** Откройте файл `.env` и вставьте **хотя бы один** LLM API ключ (например, `OPENAI_API_KEY`).
 
     ```ini
     # .env
     OPENAI_API_KEY="sk-..." # Ваш ключ
-    # ... остальные настройки можно оставить по умолчанию
+    # LLM_MODEL_NAME="gemini-2.5-flash" # Раскомментируйте, если используете Gemini
     ```
 
 ### Шаг 2: Сборка и Запуск Docker-контейнера
 
-Выполните одну команду для сборки образа и запуска сервиса. Это займет несколько минут.
+Выполните одну команду для сборки образа и запуска сервиса. **Демо-версия запустится на порту 8501.**
 
 ```bash
-docker build -t novapay-chatbot . && docker run -d -p 5000:5000 --env-file .env --name novapay-agent novapay-chatbot
+docker build -t novapay-chatbot . && docker run -d -p 8501:8501 --env-file .env --name novapay-agent novapay-chatbot
 ```
 
-### Шаг 3: Проверка Работы (Тестирование API)
+### Шаг 3: Проверка Работы (Визуальное Демо)
 
-Ваш чат-бот запущен и доступен по адресу `http://localhost:5000`. Проверьте его работу с помощью `curl`:
+Откройте в браузере адрес: `http://localhost:8501`
 
-```bash
-curl -X POST http://localhost:5000/api/v1/query \
--H "Content-Type: application/json" \
--d '{"query": "What are the transaction fees for domestic transfers?"}'
-```
-
-Вы должны получить ответ от чат-бота!
+Вы увидите полнофункциональный чат-интерфейс, готовый к демонстрации клиентам!
 
 ---
 
 ## 🛠️ Архитектура и Расширение (Для Экспертов)
+
+### Многомодельная Поддержка (Multi-LLM)
+
+Для смены модели просто измените переменные окружения:
+
+1.  Убедитесь, что соответствующий API ключ (например, `GEMINI_API_KEY`) задан в `.env` или в секретах развертывания.
+2.  Измените `LLM_MODEL_NAME` на желаемую модель (например, `gpt-4o`, `gemini-2.5-flash`, `claude-3-opus`).
 
 ### Интеграция с Векторными Базами Данных
 
@@ -73,29 +74,22 @@ curl -X POST http://localhost:5000/api/v1/query \
 
 ### Профессиональная Критика и Рекомендации
 
-Мы успешно перешли от прототипа к **модульной, масштабируемой архитектуре**. Следующие шаги должны быть сфокусированы на демонстрации и коммерциализации:
-
-| Приоритет | Направление | Описание Улучшения |
-| :--- | :--- | :--- |
-| **Высокий** | **Визуальная Демонстрация** | Использование **Hugging Face Spaces** с `gradio` или `Streamlit` для создания **визуального интерфейса (Demo Space)**. Это позволит клиентам тестировать чат-бота без cURL. |
-| **Высокий** | **Интеграция с Векторной БД** | Фактическая реализация подключения к **Pinecone** или **Weaviate** (сейчас это только заготовка в `.env`). Это позволит нам проводить демонстрации с реальными, большими базами знаний. |
-| **Средний** | **Масштабируемая Память** | Интеграция с **Redis** или другой внешней службой для **хранения истории диалогов** в продакшн-среде. |
-
-**Заключение Эксперта:** Мы создали "пушку" — гибкую, модульную платформу, готовую к интеграции с любыми корпоративными системами. Следующий шаг — **упаковка для продажи** (визуальное демо и демонстрация масштабирования).
+Мы создали "пушку" — гибкую, модульную платформу, готовую к интеграции с любыми корпоративными системами. Следующий шаг — **упаковка для продажи** (финальное развертывание на Hugging Face).
 
 ## Project Structure
 
 ```
 .
-├── .env.example              # Template for environment variables (API keys, model names)
+├── .env.example              # Template for environment variables (API keys, model names, DBs)
 ├── .gitignore                # Files to ignore (venv, .env, cache)
-├── Dockerfile                # Docker configuration for deployment
+├── Dockerfile                # Docker configuration for Streamlit Demo MVP
 ├── README.md                 # Project documentation and use cases
 ├── requirements.txt          # Python dependencies
 └── src/
     ├── __init__.py           # Python package marker
-    ├── app.py                # Flask API application (runs the service)
-    ├── chatbot.py            # Core LangChain RAG and Context Management logic
+    ├── app.py                # Original Flask API (still available for direct integration)
+    ├── app_demo.py           # Streamlit Visual Demo MVP
+    ├── chatbot.py            # Core LangChain RAG and Multi-LLM logic
     └── data/
         └── knowledge_base.txt  # The source of truth for RAG (editable knowledge base)
 ```

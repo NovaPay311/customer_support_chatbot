@@ -7,14 +7,12 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-# Install Gunicorn and any needed packages specified in requirements.txt
-# Gunicorn is explicitly installed here to ensure it is available for the CMD
-RUN pip install --no-cache-dir gunicorn -r requirements.txt
+# Install all needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 5000 available to the world outside this container
-EXPOSE 5000
+# Make port 8501 available to the world outside this container (Streamlit default)
+EXPOSE 8501
 
-# Run gunicorn to serve the Flask application
-# The command is: gunicorn --bind 0.0.0.0:5000 src.app:app
-# We use 4 worker processes for better performance and robustness.
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "src.app:app"]
+# Command to run the Streamlit demo application
+# This is the new entry point for the visual Demo MVP on Hugging Face Spaces.
+CMD ["streamlit", "run", "src/app_demo.py", "--server.port=8501", "--server.address=0.0.0.0"]
