@@ -1,82 +1,46 @@
-# NovaPay Customer Support Chatbot: Production-Ready RAG Platform
+# NovaPay Customer Support AI Agent Platform (Proposal Version)
 
-## Overview
+## 💡 Overview: From Chatbot to AI Agent Platform
 
-This repository is now a foundation for a **production-ready, highly scalable RAG (Retrieval-Augmented Generation) chatbot** designed for NovaPay customer support. It is engineered for commercial resale and deep integration with enterprise systems like **1C** and **Bitrix24**.
+Этот репозиторий демонстрирует потенциал роста и развития **NovaPay Customer Support Chatbot** до полноценной **AI Agent Platform**. Мы переходим от простого RAG-чат-бота к модульной архитектуре, способной интегрироваться с передовыми голосовыми AI-сервисами, такими как **Vapi** и **Retell AI**.
 
-The core is built on a modular **LangChain** architecture, providing the flexibility and power needed to adapt to any client's requirements.
+**Текущая версия** используется как **Proposal Version** (версия для предложений и рекомендаций). Она показывает модульность ядра и готовность к внедрению современных трендов.
 
-### Key Features & Scalability
+### Key Features & Growth Potential
 
-| Feature | Description | Commercial Value |
+| Feature | Description | Growth Potential / Trend |
 | :--- | :--- | :--- |
-| **Multi-LLM Support** | Dynamically switches between **OpenAI, Google (Gemini), and Anthropic (Claude)** models based on configuration. | **Flexibility & Cost Optimization:** Allows clients to choose the best model for their budget and performance needs. |
-| **Modular LangChain Core** | The RAG pipeline is built using LangChain's abstractions, allowing for easy component swapping. | **Future-Proof & Adaptable:** Ready to integrate any new LLM, Embedding Model, or Vector Database on the market. |
-| **Vector DB Ready** | Configured for seamless integration with **ChromaDB** (for quick start) and prospective support for **Pinecone** and **Weaviate** (via `.env`). | **Scalable Knowledge:** Handles millions of documents, a necessity for large corporate clients. |
-| **Conversational Memory** | Uses LangChain's standard memory abstraction to maintain context across queries. | **Expert Interaction:** Enables natural, multi-turn conversations, significantly boosting customer satisfaction. |
+| **Modular AI Agent Core** | Основная логика RAG-пайплайна вынесена в отдельный модуль (`src/app.py`), что позволяет легко подключать ее к различным интерфейсам. | **AI Agents:** Готовность к созданию многофункциональных агентов, а не только чат-ботов. |
+| **Voice AI Integration Ready** | Архитектура позволяет использовать основной агент для обработки запросов от голосовых AI-сервисов. | **Vapi / Retell AI:** Прямая интеграция с платформами для создания высококачественных голосовых ассистентов, что является ключевым трендом в клиентском сервисе. |
+| **Multi-LLM Support** | Динамическое переключение между **OpenAI, Google (Gemini), и Anthropic (Claude)**. | **Flexibility & Cost Optimization:** Выбор лучшей модели для конкретной задачи и бюджета клиента. |
+| **Examples & Blueprints** | Добавлена папка `examples/` с примерами интеграций и демонстрационными MVP. | **Rapid Prototyping:** Предоставление клиентам готовых "чертежей" (blueprints) для быстрого запуска. |
 
 ---
 
-## 🚀 Quick Start: Запуск Визуального Демо (Demo MVP)
+## 🚀 Quick Start: Demo MVP (Moved to Examples)
 
-Мы создали **визуальный интерфейс на Streamlit**, чтобы вы могли запустить и проверить работу чат-бота всего за несколько команд.
+Визуальное демо (Streamlit MVP) теперь находится в папке `examples/` и используется исключительно для быстрой демонстрации RAG-логики.
 
-### Шаг 1: Клонирование и Настройка
+### Запуск Демо
 
 1.  **Клонируйте** репозиторий:
     ```bash
     git clone https://github.com/NovaPay311/customer_support_chatbot.git
     cd customer_support_chatbot
     ```
-2.  **Создайте файл `.env`** из шаблона:
+2.  **Настройте** `.env` (см. `.env.example`).
+3.  **Запустите Streamlit Demo** (на порту 8501):
     ```bash
-    cp .env.example .env
+    # Сборка и запуск Docker-контейнера
+    docker build -t novapay-agent . && docker run -d -p 8501:8501 --env-file .env --name novapay-agent novapay-agent streamlit run examples/streamlit_demo.py --server.port=8501 --server.address=0.0.0.0
     ```
-3.  **Вставьте свой API ключ:** Откройте файл `.env` и вставьте **хотя бы один** LLM API ключ (например, `OPENAI_API_KEY`).
-
-    ```ini
-    # .env
-    OPENAI_API_KEY="sk-..." # Ваш ключ
-    # LLM_MODEL_NAME="gemini-2.5-flash" # Раскомментируйте, если используете Gemini
-    ```
-
-### Шаг 2: Сборка и Запуск Docker-контейнера
-
-Выполните одну команду для сборки образа и запуска сервиса. **Демо-версия запустится на порту 8501.**
-
-```bash
-docker build -t novapay-chatbot . && docker run -d -p 8501:8501 --env-file .env --name novapay-agent novapay-chatbot
-```
-
-### Шаг 3: Проверка Работы (Визуальное Демо)
-
-Откройте в браузере адрес: `http://localhost:8501`
-
-Вы увидите полнофункциональный чат-интерфейс, готовый к демонстрации клиентам!
+4.  Откройте в браузере адрес: `http://localhost:8501`
 
 ---
 
-## 🛠️ Архитектура и Расширение (Для Экспертов)
+## 🛠️ Project Structure (Modular & Future-Proof)
 
-### Многомодельная Поддержка (Multi-LLM)
-
-Для смены модели просто измените переменные окружения:
-
-1.  Убедитесь, что соответствующий API ключ (например, `GEMINI_API_KEY`) задан в `.env` или в секретах развертывания.
-2.  Измените `LLM_MODEL_NAME` на желаемую модель (например, `gpt-4o`, `gemini-2.5-flash`, `claude-3-opus`).
-
-### Интеграция с Векторными Базами Данных
-
-Проект настроен на использование **ChromaDB** в режиме `in-memory` для быстрого старта. Для перехода на продакшн-уровень и масштабирования, измените переменные в файле `.env`:
-
-1.  **Установите** `VECDB_TYPE` на `PINECONE` или `WEAVIATE`.
-2.  **Раскомментируйте** и заполните соответствующие поля API ключами и URL.
-
-### Профессиональная Критика и Рекомендации
-
-Мы создали "пушку" — гибкую, модульную платформу, готовую к интеграции с любыми корпоративными системами. Следующий шаг — **упаковка для продажи** (финальное развертывание на Hugging Face).
-
-## Project Structure
+Проект реструктурирован для повышения модульности и демонстрации потенциала роста.
 
 ```
 .
@@ -87,11 +51,22 @@ docker build -t novapay-chatbot . && docker run -d -p 8501:8501 --env-file .env 
 ├── Dockerfile                # Docker configuration for Streamlit Demo MVP
 ├── README.md                 # Project documentation and use cases
 ├── requirements.txt          # Python dependencies
-└── src/
+├── examples/                 # Папка с примерами и демонстрационными MVP
+│   ├── streamlit_demo.py     # Визуальное демо (Streamlit MVP)
+│   └── vapi_integration_mock.py # Пример интеграции с голосовыми AI (Vapi/Retell AI)
+└── src/                      # Основное ядро AI Agent
     ├── __init__.py           # Python package marker
-    ├── app.py                # Original Flask API (still available for direct integration)
-    ├── app_demo.py           # Streamlit Visual Demo MVP
-    ├── chatbot.py            # Core LangChain RAG and Multi-LLM logic
+    ├── app.py                # Основной модуль AI Agent (точка входа для Vapi/Retell AI)
+    ├── api_flask.py          # Оригинальный Flask API (для интеграции с 1C/Bitrix24)
+    ├── chatbot.py            # Core LangChain RAG и Multi-LLM логика
     └── data/
-        └── knowledge_base.txt  # The source of truth for RAG (editable knowledge base)
+        └── knowledge_base.txt  # Источник знаний для RAG
 ```
+
+---
+
+## 🗺️ Roadmap: План Дальнейшей Разработки (Next Steps)
+
+Для дальнейшего развития проекта и превращения его в полноценную платформу AI-агентов, предлагается следующий план. (См. файл `ROADMAP.md`)
+
+---
