@@ -81,7 +81,9 @@ docker build -t novapay-chatbot . && docker run -d -p 8501:8501 --env-file .env 
 ```
 .
 ├── .env.example              # Template for environment variables (API keys, model names, DBs)
+├── .dockerignore             # Files to ignore when building Docker image (venv, cache)
 ├── .gitignore                # Files to ignore (venv, .env, cache)
+├── context7.json             # Context7 configuration for documentation indexing
 ├── Dockerfile                # Docker configuration for Streamlit Demo MVP
 ├── README.md                 # Project documentation and use cases
 ├── requirements.txt          # Python dependencies

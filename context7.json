@@ -1,0 +1,6 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Customer Support Chatbot",
+  "description": "A chatbot for customer support, built with Streamlit and other NLP libraries.",
+  "excludeFolders": ["venv"]
+}
