@@ -8,11 +8,13 @@ from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_anthropic import ChatAnthropic
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import ConversationalRetrievalChain
+from langchain.retrievers import ContextualCompressionRetriever
+from langchain_cohere import CohereRerank # Новый импорт для Reranking
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter, SentenceSplitter # Обновленный импорт
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,6 +26,9 @@ EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "text-embedding-ada-002
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+COHERE_API_KEY = os.getenv("COHERE_API_KEY") # Добавляем ключ для Reranker
+RERANK_MODEL_NAME = os.getenv("RERANK_MODEL_NAME", "rerank-english-v3.0") # Модель для Reranking
+RERANK_TOP_N = int(os.getenv("RERANK_TOP_N", 5)) # Сколько документов оставить после Reranking
 OPENAI_API_BASE = os.getenv("OPENAI_API_BASE")
 VECDB_TYPE = os.getenv("VECDB_TYPE", "CHROMA")
 CHROMA_PERSIST_DIRECTORY = os.getenv("CHROMA_PERSIST_DIRECTORY", "./chroma_db")
@@ -83,10 +88,10 @@ class CustomerSupportChatbot:
             loader = TextLoader(KNOWLEDGE_BASE_PATH)
             documents = loader.load()
             
-            text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=1000,
-                chunk_overlap=200,
-                separators=["\n\n", "\n", " ", ""]
+            # Используем SentenceSplitter для более семантически осмысленного чанкинга
+            text_splitter = SentenceSplitter(
+                chunk_size=500, # Уменьшаем размер чанка
+                chunk_overlap=50, # Уменьшаем перекрытие
             )
             
             texts = text_splitter.split_documents(documents)
@@ -161,13 +166,29 @@ Answer:"""
         
         QA_CHAIN_PROMPT = PromptTemplate.from_template(custom_template)
 
-        # 4. Conversational Retrieval Chain
+        # 5. Reranking (Contextual Compression)
+        if COHERE_API_KEY:
+            compressor = CohereRerank(
+                cohere_api_key=COHERE_API_KEY, 
+                model=RERANK_MODEL_NAME, 
+                top_n=RERANK_TOP_N
+            )
+            retriever = ContextualCompressionRetriever(
+                base_compressor=compressor, 
+                base_retriever=vector_store.as_retriever(search_kwargs={"k": 10}) # Извлекаем больше документов для Reranking
+            )
+            logger.info(f"RAG chain initialized with Cohere Rerank (top_n={RERANK_TOP_N}).")
+        else:
+            retriever = vector_store.as_retriever(search_kwargs={"k": 3})
+            logger.warning("COHERE_API_KEY not set. Reranking is disabled. Using standard retrieval (k=3).")
+
+        # 6. Conversational Retrieval Chain
         chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
-            retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
+            retriever=retriever, # Используем компрессированный ретривер или стандартный
             memory=memory,
             combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
-            return_source_documents=False
+            return_source_documents=True # Включаем возврат исходных документов для отладки
         )
         
         return chain
