@@ -10,6 +10,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_anthropic import ChatAnthropic
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import ConversationalRetrievalChain
+from .advanced_retrievers import get_hyde_retriever, get_rag_fusion_retriever
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from langchain_community.document_loaders import TextLoader
@@ -69,6 +70,29 @@ def _get_llm_instance(model_name: str):
 
 
 class CustomerSupportChatbot:
+    def __init__(self):
+        self.use_hyde = os.getenv("USE_HYDE", "False").lower() == "true"
+        self.use_rag_fusion = os.getenv("USE_RAG_FUSION", "False").lower() == "true"
+        self.rag_fusion_k = int(os.getenv("RAG_FUSION_K", 4))
+        self.rag_fusion_search = None # Инициализация для RAG-Fusion
+        
+        if not (OPENAI_API_KEY or GEMINI_API_KEY or ANTHROPIC_API_KEY):
+            logger.error("No LLM API key is set. Chatbot cannot be initialized.")
+            raise ValueError("At least one LLM API key (OpenAI, Gemini, or Anthropic) is required.")
+            
+        self.chain = self._setup_chain()
+        
+        if self.use_rag_fusion:
+            # Инициализируем RAG-Fusion после настройки chain, чтобы использовать его компоненты
+            from .advanced_retrievers import get_rag_fusion_retriever
+            # Передаем базовый ретривер (который уже может быть HyDE-ретривером)
+            self.rag_fusion_search = get_rag_fusion_retriever(
+                llm=self._get_llm_instance(LLM_MODEL_NAME),
+                base_retriever=self.chain.retriever,
+                k_queries=self.rag_fusion_k
+            )
+            
+        logger.info("Chatbot initialized with LangChain RAG architecture and Multi-LLM support.")
     def __init__(self):
         if not (OPENAI_API_KEY or GEMINI_API_KEY or ANTHROPIC_API_KEY):
             logger.error("No LLM API key is set. Chatbot cannot be initialized.")
@@ -164,7 +188,39 @@ Answer:"""
         # 4. Conversational Retrieval Chain
         chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
-            retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
+            retriever=vector_store.as_retriever(
+            search_type="similarity",
+            search_kwargs={"k": 10} # Увеличиваем k для Reranking
+        )
+
+        # 5. Advanced RAG Techniques (HyDE and Reranking)
+        if self.use_hyde:
+            # HyDE должен быть применен к базовому ретриверу
+            retriever = get_hyde_retriever(
+                llm=llm,
+                base_retriever=retriever,
+                embedding_model=embeddings
+            )
+        
+        # Reranking (если используется)
+        cohere_api_key = os.getenv("COHERE_API_KEY")
+        if cohere_api_key:
+            from langchain.retrievers.document_compressors import CohereRerank
+            from langchain.retrievers import ContextualCompressionRetriever
+
+            compressor = CohereRerank(cohere_api_key=cohere_api_key, top_n=5)
+            retriever = ContextualCompressionRetriever(
+                base_compressor=compressor, base_retriever=retriever
+            )
+
+        # 6. Conversational Retrieval Chain
+        chain = ConversationalRetrievalChain.from_llm(
+            llm=llm,
+            retriever=retriever, # Используем модифицированный ретривер
+            memory=memory,
+            combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
+            return_source_documents=False
+        )
             memory=memory,
             combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
             return_source_documents=False
@@ -178,7 +234,39 @@ Answer:"""
             return "Please provide a question."
         
         try:
+            if self.use_rag_fusion:
+            # Используем RAG-Fusion напрямую
+            documents = self.rag_fusion_search(query)
+            context = "\n".join([doc.page_content for doc in documents])
+            
+            # Генерируем ответ с использованием LLM и контекста
+            # (упрощенная версия без ConversationalRetrievalChain)
+            from langchain.prompts import PromptTemplate
+            from langchain.chains import LLMChain
+
+            prompt = PromptTemplate(
+                input_variables=["context", "question"],
+                template="""Используй следующий контекст для ответа на вопрос.
+                Если ты не знаешь ответа, просто скажи, что не знаешь.
+
+                Контекст: {context}
+
+                Вопрос: {question}
+
+                Ответ:"""
+            )
+            
+            llm_chain = LLMChain(llm=self._get_llm_instance(LLM_MODEL_NAME), prompt=prompt)
+            response = llm_chain.run(context=context, question=query)
+            
+            # Обновляем историю разговора вручную
+            # self.chat_history.append((query, response)) # Не нужно, так как memory не используется
+            return response
+        else:
+            # Стандартный RAG (с HyDE и Reranking, если включены)
             result = self.chain.invoke({"question": query})
+            # Обновляем историю разговора через memory в chain, но возвращаем ответ
+            return result.get("answer", "Sorry, I couldn't process that request.")
             return result.get("answer", "Sorry, I couldn't process that request.")
             
         except Exception as e:
